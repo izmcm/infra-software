@@ -1,3 +1,31 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                                        ;;
+;; Copyright (c) 2018 Caio Gomes and Izabella Melo.                       ;;
+;; source: https://github.com/minimarvin/infra-software)                  ;;
+;;                                                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                                        ;;
+;; This file is part of a open educatio politics to allow everyone learn  ;;
+;; how to build a bootloader. It's hardly inspired by a template          ;;
+;; published by the monitors of the discipline of software infrastructure ;;
+;; in Federal University of Pernambuco in the course of Computers         ;;
+;; Engineering.                                                           ;;
+;;                                                                        ;;
+;; This program is free software: you can redistribute it and/or modify   ;;
+;; it under the terms of the GNU General Public License as published by   ;;
+;; the Free Software Foundation, version 3.                               ;;
+;;                                                                        ;;
+;; This program is distributed in the hope that it will be useful, but    ;;
+;; WITHOUT ANY WARRANTY; without even the implied warranty of             ;;
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU       ;;
+;; General Public License for more details.                               ;;
+;;                                                                        ;;
+;; You should have received a copy of the GNU General Public License      ;;
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.   ;;
+;;                                                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Defines                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
