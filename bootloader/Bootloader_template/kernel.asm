@@ -92,6 +92,14 @@ start:
 	call set_video_mode
 	
 	mov ax, green
+	mov si, objectX
+	mov [si], 0
+	mov si, objectY
+	mov [si], 0
+	mov si, objectHeight
+	mov [si], 100
+	mov si, objectWidth
+	mov [si], 200
 	call draw_square
 
 	;; Setup the color and the page
@@ -100,6 +108,17 @@ start:
 
 	mov si, hello
 	call print_data_seg
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Subrountines            ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+game_loop:
+	;; Must draw every rectangle in the screen
+	;; pass the function params in the stack and use a register to store the 
+	;; return addres
+
+	
 
 done:
 	jmp $
@@ -150,9 +169,11 @@ clean_all:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Draw the figures        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-draw_square:
+draw_rectangle:
 	
 	;; Uses all the four registers
+	;; Move to the global variables objectX, objectY, objectHeight, objectWidth
+	;; The dimensions of the rectangle wanted
 
 	xor dx, dx
 	xor cx, cx
@@ -160,31 +181,35 @@ draw_square:
 
 	mov ah, pixel_service
 	;; Size of the rectangle
-	mov cx, square_size
-	mov dx, square_size
+	mov si, objectWidth
+	mov cx, [si]
+	mov si, objectHeight
+	mov dx, [si]
 	
 	;; Put in the center of the screen
-	add cx, square_x
-	add dx, square_y
+	mov si, objectX
+	add cx, [si]
+	mov si, objectY
+	add dx, [si]
 
-	draw_square_loop:
+	draw_rectangle_loop:
 		dec cx
-		cmp cx, square_x
-		je partial_draw_square_loop
+		mov si, objectX
+		cmp cx, [si]
+		je partial_draw_rectangle_loop
 		
 		int 10h
-		jmp draw_square_loop
-		partial_draw_square_loop:
+		jmp draw_rectangle_loop
+		partial_draw_rectangle_loop:
 			mov cx, square_size 
 			add cx, square_x
 
 			dec dx
-			cmp dx, square_y
-			je end_draw_square_loop
-			jmp draw_square_loop
-	end_draw_square_loop:
-
-
+			mov si, objectY
+			cmp dx, [si]
+			je end_draw_rectangle_loop
+			jmp draw_rectangle_loop
+	end_draw_rectangle_loop:
 	ret
 
 
@@ -193,6 +218,15 @@ draw_square:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 msg1: db 'Testing the kernel...', carriage_return, endl, 0
 hello: db 'Hello Izabella I am trying to print in the video mode!', carriage_return, endl, 0
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Global Variables        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+objectWidth: db 0
+objectHeight: db 0
+objectX: db 0
+objectY: db 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
