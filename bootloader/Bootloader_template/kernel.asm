@@ -50,6 +50,10 @@ bits 16
 jmp start
 
 start:
+	xor ax, ax
+	mov ds, ax
+	mov es, ax
+
 	mov si, msg1
 	call print_data_seg
 

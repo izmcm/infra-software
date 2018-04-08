@@ -47,8 +47,16 @@ org 0x500
 
 bits 16                   ; 16 bits real mode
 
-jmp start
+jmp 0x0000:start
 start: 
+	xor ax, ax
+	mov ds, ax
+	mov es, ax
+
+	mov ax, 0x7e0 ;0x50<<1 = 0x7e00 (início de kernel.asm)
+    mov es, ax
+    xor bx, bx   ;posição = es<<1+bx
+
 	mov si, msg1
 	call print_data_seg
 	mov si, msg2
@@ -57,9 +65,23 @@ start:
 	call print_data_seg
 	mov si, msg4
 	call print_data_seg
+	jmp load_kernel
+
+load_kernel:
+    mov ah, 02h ;lê um setor do disco
+    mov al, 20  ;quantidade de setores ocupados pelo boot2
+    mov ch, 0   ;track 0
+    mov cl, 3   ;sector 2
+    mov dh, 0   ;head 0
+    mov dl, 0   ;drive 0
+    int 13h
+
+    jc load_kernel     ;se o acesso falhar, tenta novamente
+
+    jmp 0x7e00   ;pula para o setor de endereco 0x500 (start do boot2)
 
 end:
-	jmp 0x7e00
+	jmp $
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
