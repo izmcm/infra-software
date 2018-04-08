@@ -89,9 +89,9 @@ print_data_seg:
 	end_print_data_seg:
 		ret
 
-
-
-;; Messages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Messages                ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 msg1: db 'Loading structures for the kernel...', carriage_return, endl, 0
 msg2: db 'Setting up protected mode...', carriage_return, endl, 0
 msg3: db 'Loading kernel in memory...', carriage_return, endl, 0
