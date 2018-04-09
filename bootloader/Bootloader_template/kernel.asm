@@ -127,6 +127,25 @@ game_loop:
 	time_out:
 		call update_ball
 
+	compare_x:
+		mov dx, [barX1]
+		add dx, [barWidth]
+		cmp [ballX], dx
+		jle compare_y1
+
+	compare_y1:
+		mov dx, [barY1]
+		cmp [ballY], dx
+		jge compare_y2
+
+	compare_y2:
+		mov dx, [barY1]
+		cmp [ballY], dx
+		jle update_flag
+
+	update_flag:
+		mov word [flag_ball_x], 5
+
 	processchar:
 		cmp al, 's'
 		je down_bar_1
@@ -380,8 +399,8 @@ ballSize: dw 10
 
 timer: dw 0
 
-flag_ball_x: dw 5
-flag_ball_y: dw 5
+flag_ball_x: dw -5
+flag_ball_y: dw -5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
