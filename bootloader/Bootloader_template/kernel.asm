@@ -116,7 +116,16 @@ game_loop:
 	call read_char_unblocking
 	jnz processchar
 
+	mov dx, word [timer]
+	inc dx
+	mov word [timer], dx
+	cmp word [timer], 50
+	je time_out
+
 	jmp game_loop
+
+	time_out:
+		call update_ball
 
 	processchar:
 		cmp al, 's'
@@ -234,6 +243,23 @@ clean_all:
 	xor dx, dx
 	ret
 
+update_ball:
+	mov al, black
+	call print_ball
+
+	mov word [timer], 0
+
+	mov dx, [ballX]
+	add dx, [flag_ball_x]
+	mov [ballX], dx
+
+	mov dx, [ballY]
+	add dx, [flag_ball_y]
+	mov [ballY], dx
+
+	mov al, white
+	call print_ball
+	ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Draw the figures        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -334,13 +360,6 @@ print_ball:
 	ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Messages                ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-msg1: dw 'Testing the kernel...', carriage_return, endl, 0
-hello: dw 'Hello Izabella I am trying to print in the video mode!', carriage_return, endl, 0
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Variables        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 objectWidth: dw 0
@@ -359,9 +378,14 @@ ballX: dw 150
 ballY: dw 94
 ballSize: dw 10
 
+timer: dw 0
+
+flag_ball_x: dw 5
+flag_ball_y: dw 5
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 exit:
-	; times 510-($-$$) dw 0 ;512 bytes
+	;times 510-($-$$) dw 0 ;512 bytes
 	dw 0xaa55             ;assinatura
