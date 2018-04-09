@@ -31,6 +31,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 write_service equ 0x0e
 read_service equ 0x00
+read_service_unblocking equ 0x01
 pixel_service equ 0x0c ; Print a pixel in coordinates [dx, cx], bh = Page Number
 background_service equ 0x0b
 maxHeight equ 198
@@ -111,18 +112,24 @@ game_loop:
 	;; return addres
 	call print_board
 
-	call read_char
-	cmp al, 's'
-	je down_bar_1
+	;; Read keyboard unblocking
+	call read_char_unblocking
+	jnz processchar
 
-	cmp al, 'w'
-	je up_bar_1
+	jmp game_loop
 
-	cmp al, 'i'
-	je up_bar_2
+	processchar:
+		cmp al, 's'
+		je down_bar_1
 
-	cmp al, 'k'
-	je down_bar_2
+		cmp al, 'w'
+		je up_bar_1
+
+		cmp al, 'i'
+		je up_bar_2
+
+		cmp al, 'k'
+		je down_bar_2
 
 	jmp game_loop
 
@@ -182,6 +189,17 @@ read_char:
 	mov ah, read_service ;Número da chamada.
 	int 16h ; Put the char in AL
 	xor ah, ah
+	ret
+
+read_char_unblocking:
+	;; If something in the buffer them read the char
+	;; otherwise, there is no data to read
+	mov ah, read_service_unblocking ;Número da chamada.
+	int 16h ; Put the char in AL
+	jz read_char_unblocking_done
+	mov ah, read_service
+	int 16h
+	read_char_unblocking_done:
 	ret
 
 print_char:
@@ -345,5 +363,5 @@ ballSize: dw 10
 ;; Boot Signature          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 exit:
-	times 510-($-$$) dw 0 ;512 bytes
+	; times 510-($-$$) dw 0 ;512 bytes
 	dw 0xaa55             ;assinatura
