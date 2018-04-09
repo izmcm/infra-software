@@ -48,7 +48,7 @@ org 0x500
 bits 16                   ; 16 bits real mode
 
 jmp 0x0000:start
-start: 
+start:
 	xor ax, ax
 	mov ds, ax
 	mov es, ax
@@ -59,12 +59,24 @@ start:
 
 	mov si, msg1
 	call print_data_seg
+	mov dx, 2000
+	call delay
+
 	mov si, msg2
 	call print_data_seg
+	mov dx, 2000
+	call delay
+
 	mov si, msg3
 	call print_data_seg
+	mov dx, 2000
+	call delay
+
 	mov si, msg4
 	call print_data_seg
+	mov dx, 3000
+	call delay
+
 	jmp load_kernel
 
 load_kernel:
@@ -99,13 +111,25 @@ print_char:
 	xor ah, ah
 	ret
 
+delay:
+	mov bp, dx
+	back:
+		dec bp
+		cmp bp, 0
+		jnz back
+
+		dec dx
+		cmp dx,0
+		jnz back
+	ret
+
 ;; Must put the data seg in SI and finish with 0
 print_data_seg:
 	loop_print_data_seg:
 		lodsb
 		cmp al, 0
 		je end_print_data_seg
-		
+
 		call print_char
 		jmp loop_print_data_seg
 	end_print_data_seg:
@@ -119,7 +143,7 @@ msg2: db 'Setting up protected mode...', carriage_return, endl, 0
 msg3: db 'Loading kernel in memory...', carriage_return, endl, 0
 msg4: db 'Running kernel...', carriage_return, endl, 0
 
-	
+
 exit:
 	times 510-($-$$) db 0 ;512 bytes
 	dw 0xaa55             ;assinatura
