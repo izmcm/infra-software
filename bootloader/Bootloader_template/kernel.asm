@@ -47,7 +47,8 @@ write_int equ 0x10
 space equ 0x20
 endl equ 0x0A
 carriage_return equ 0x0D
-
+up equ 38
+down equ 40
 
 ;; Figures defines
 square_size equ 40
@@ -96,8 +97,7 @@ start:
 	mov es, ax
 
 	call set_video_mode
-	
-	
+
 	mov [barY1], word 50
 	mov [barY2], word 50
 	jmp game_loop
@@ -107,36 +107,73 @@ start:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 game_loop:
 	;; Must draw every rectangle in the screen
-	;; pass the function params in the stack and use a register to store the 
+	;; pass the function params in the stack and use a register to store the
 	;; return addres
-	
-	mov dx, word [barY1]
-	loop_toprint:
-		cmp dx, 0
-		je end_loop_toprint
-		
-		push dx
-		mov al, black
-		call print_bar_1
-		pop dx
-		
-		dec dx
+	call print_board
+
+	call read_char
+	cmp al, 's'
+	je down_bar_1
+
+	cmp al, 'w'
+	je up_bar_1
+
+	cmp al, 'i'
+	je up_bar_2
+
+	cmp al, 'k'
+	je down_bar_2
+
+	jmp game_loop
+
+	down_bar_1:
+		mov dx, maxHeight
+		sub dx, [barHeight]
+		cmp [barY1], dx
+		jge game_loop
+
+		call delete_board
+		mov dx, [barY1]
+		add dx, 10
 		mov [barY1], dx
-		push dx
+		jmp game_loop
 
-		mov al, white
-		call print_board
-		pop dx
-		
-		jmp loop_toprint
-	end_loop_toprint:
+	up_bar_1:
+		mov dx, [barY1]
+		cmp dx, 0
+		je game_loop
 
-	
+		call delete_board
+		mov dx, [barY1]
+		sub dx, 10
+		mov [barY1], dx
+		jmp game_loop
+
+	up_bar_2:
+		mov dx, [barY2]
+		cmp dx, 0
+		je game_loop
+
+		call delete_board
+		mov dx, [barY2]
+		sub dx, 10
+		mov [barY2], dx
+		jmp game_loop
+
+	down_bar_2:
+		mov dx, maxHeight
+		sub dx, [barHeight]
+		cmp [barY2], dx
+		jge game_loop
+
+		call delete_board
+		mov dx, [barY2]
+		add dx, 10
+		mov [barY2], dx
+		jmp game_loop
 
 done:
 	jmp $
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subrountines            ;;
@@ -161,7 +198,7 @@ print_data_seg:
 		lodsb
 		cmp al, 0
 		je end_print_data_seg
-		
+
 		call print_char
 		jmp loop_print_data_seg
 	end_print_data_seg:
@@ -183,7 +220,7 @@ clean_all:
 ;; Draw the figures        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 draw_rectangle:
-	
+
 	;; Uses all the four registers
 	;; Move to the global variables objectX, objectY, objectHeight, objectWidth
 	;; The dimensions of the rectangle wanted
@@ -195,7 +232,7 @@ draw_rectangle:
 	;; Size of the rectangle
 	mov cx, word [objectX]
 	mov dx, word [objectY]
-	
+
 	;; Put in the center of the screen
 	add cx, word [objectWidth]
 	add dx, word [objectHeight]
@@ -205,7 +242,7 @@ draw_rectangle:
 		cmp cx, word [objectX]
 
 		je partial_draw_rectangle_loop
-		
+
 		int 10h
 		jmp draw_rectangle_loop
 		partial_draw_rectangle_loop:
