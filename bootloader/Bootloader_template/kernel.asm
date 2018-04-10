@@ -111,7 +111,32 @@ game_loop:
 	;; pass the function params in the stack and use a register to store the
 	;; return addres
 
-	;; Verify if player is won
+	;; Verify if player won
+	check_p1_won:
+		cmp word [points_p1], 10
+		je p1_won
+		jmp done_check_p1_won
+		p1_won:
+			call p1_did_won
+			call read_char
+			mov word [points_p1], 0
+			mov word [points_p2], 0
+			call restart_game
+			jmp game_loop
+	done_check_p1_won:
+
+	check_p2_won:
+		cmp word [points_p2], 10
+		je p2_won
+		jmp done_check_p2_won
+		p2_won:
+			call p2_did_won
+			call read_char
+			mov word [points_p1], 0
+			mov word [points_p2], 0
+			call restart_game
+			jmp game_loop
+	done_check_p2_won:
 
 	call print_board
 	call print_points
@@ -531,6 +556,41 @@ print_points:
 	call print_char
 	ret
 
+
+p1_did_won:
+	call clean_screen
+	mov bh, 0
+	mov dh, 0
+	mov dl, 0
+	int 10h
+
+	mov bh, 0
+	mov bl, white
+
+	mov si, position_correct
+	call print_data_seg
+
+	mov si, won1_message
+	call print_data_seg
+	ret
+
+p2_did_won:
+	call clean_screen
+	mov bh, 0
+	mov dh, 0
+	mov dl, 0
+	int 10h
+
+	mov bh, 0
+	mov bl, white
+
+	mov si, position_correct
+	call print_data_seg
+
+	mov si, won2_message
+	call print_data_seg
+	ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Variables        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -557,6 +617,10 @@ flag_ball_y: dw 1
 
 points_p1: dw 0
 points_p2: dw 0
+
+position_correct: db endl, endl, endl, endl, endl, endl, carriage_return, '             ', 0
+won1_message: db 'Player 1 WON :)', 0
+won2_message: db 'Player 2 WON :)', 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
