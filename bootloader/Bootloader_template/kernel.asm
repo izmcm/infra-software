@@ -127,53 +127,85 @@ game_loop:
 	time_out:
 		call update_ball
 
-	;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	;; Verify if the ball      ;;
+	;; colided with the bar 1. ;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	compare_x_with_bar1:
 	 	mov dx, [barX1]
 	 	add dx, [barWidth]
 	 	cmp [ballX], dx
 	 	jle compare_y1_with_bar1
-		jg compare_x_with_bar2
+		jg done_x_compare_bar1
 
 	compare_y1_with_bar1:
 		mov dx, [barY1]
 	 	cmp [ballY], dx
 	 	jge compare_y2_with_bar1
-		jl compare_x_with_bar2
+		jl done_x_compare_bar1
 
 	compare_y2_with_bar1:
 	 	mov dx, [barY1]
 		add dx, [barHeight]
 	 	cmp [ballY], dx
 	 	jle update_flag_x_for_right
-		jg compare_x_with_bar2
+		jg done_x_compare_bar1
 
 	update_flag_x_for_right:
 	 	mov word [flag_ball_x], 5
+	done_x_compare_bar1:
 
-	;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	;; Verify if the ball      ;;
+	;; colided with the bar 2. ;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	compare_x_with_bar2:
 	 	mov dx, [barX2]
 		sub dx, [barWidth]
 	 	cmp [ballX], dx
 	 	jge compare_y1_with_bar2
-		jl processchar
+		jl done_x_compare_bar2
 
 	compare_y1_with_bar2:
 		mov dx, [barY2]
 	 	cmp [ballY], dx
 	 	jge compare_y2_with_bar2
-		jl processchar
+		jl done_x_compare_bar2
 
 	compare_y2_with_bar2:
 	 	mov dx, [barY2]
 		add dx, [barHeight]
 	 	cmp [ballY], dx
 	 	jle update_flag_x_for_left
-		jg processchar
+		jg done_x_compare_bar2
 
 	update_flag_x_for_left:
 	 	mov word [flag_ball_x], -5
+	done_x_compare_bar2:
+
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	;; Verify if the ball      ;;
+	;; colided with the wall.  ;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	compare_wall_top:
+		cmp word [ballY], 0
+		jle update_flag_y_to_drop
+		jmp done_compare_wall_top
+
+	update_flag_y_to_drop:
+		mov word [flag_ball_y], 5
+	done_compare_wall_top:
+
+	;;
+	compare_wall_bottom:
+		mov dx, word [ballY]
+		add dx, word [ballSize]
+		cmp dx, maxHeight
+		jge update_flag_y_to_grow
+		jmp done_compare_wall_bottom
+	update_flag_y_to_grow:
+		mov word [flag_ball_y], -5
+	done_compare_wall_bottom:
 
 	processchar:
 		cmp al, 's'
@@ -429,7 +461,7 @@ ballSize: dw 10
 timer: dw 0
 
 flag_ball_x: dw -5
-flag_ball_y: dw 0
+flag_ball_y: dw 1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
