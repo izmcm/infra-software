@@ -110,7 +110,11 @@ game_loop:
 	;; Must draw every rectangle in the screen
 	;; pass the function params in the stack and use a register to store the
 	;; return addres
+
+	;; Verify if player is won
+
 	call print_board
+	call print_points
 
 	;; Read keyboard unblocking
 	call read_char_unblocking
@@ -119,7 +123,7 @@ game_loop:
 	mov dx, word [timer]
 	inc dx
 	mov word [timer], dx
-	cmp word [timer], 50
+	cmp word [timer], 20
 	je time_out
 
 	jmp game_loop
@@ -142,14 +146,28 @@ game_loop:
 		mov dx, [barY1]
 	 	cmp [ballY], dx
 	 	jge compare_y2_with_bar1
-		jl done_x_compare_bar1
+
+	 	;; Point to player 2
+	 	mov dx, word [points_p2]
+	 	inc dx
+	 	mov word [points_p2], dx
+	 	call restart_game
+
+		jmp done_x_compare_bar1
 
 	compare_y2_with_bar1:
 	 	mov dx, [barY1]
 		add dx, [barHeight]
 	 	cmp [ballY], dx
 	 	jle update_flag_x_for_right
-		jg done_x_compare_bar1
+
+	 	;; Point to player 2
+	 	mov dx, word [points_p2]
+	 	inc dx
+	 	mov word [points_p2], dx
+	 	call restart_game
+
+		jmp done_x_compare_bar1
 
 	update_flag_x_for_right:
 	 	mov word [flag_ball_x], 5
@@ -170,6 +188,13 @@ game_loop:
 		mov dx, [barY2]
 	 	cmp [ballY], dx
 	 	jge compare_y2_with_bar2
+
+	 	;; Point to player 1
+	 	mov dx, word [points_p1]
+	 	inc dx
+	 	mov word [points_p1], dx
+	 	call restart_game
+
 		jl done_x_compare_bar2
 
 	compare_y2_with_bar2:
@@ -177,6 +202,13 @@ game_loop:
 		add dx, [barHeight]
 	 	cmp [ballY], dx
 	 	jle update_flag_x_for_left
+
+	 	;; Point to player 1
+	 	mov dx, word [points_p1]
+	 	inc dx
+	 	mov word [points_p1], dx
+	 	call restart_game
+
 		jg done_x_compare_bar2
 
 	update_flag_x_for_left:
@@ -323,23 +355,18 @@ clean_all:
 	xor dx, dx
 	ret
 
-update_ball:
-	mov al, black
-	call print_ball
+delay:
+	mov bp, dx
+	back:
+		dec bp
+		cmp bp, 0
+		jnz back
 
-	mov word [timer], 0
-
-	mov dx, [ballX]
-	add dx, [flag_ball_x]
-	mov [ballX], dx
-
-	mov dx, [ballY]
-	add dx, [flag_ball_y]
-	mov [ballY], dx
-
-	mov al, white
-	call print_ball
+		dec dx
+		cmp dx,0
+		jnz back
 	ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Draw the figures        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -382,6 +409,24 @@ draw_rectangle:
 			jle end_draw_rectangle_loop
 			jmp draw_rectangle_loop
 	end_draw_rectangle_loop:
+	ret
+
+update_ball:
+	mov al, black
+	call print_ball
+
+	mov word [timer], 0
+
+	mov dx, [ballX]
+	add dx, [flag_ball_x]
+	mov [ballX], dx
+
+	mov dx, [ballY]
+	add dx, [flag_ball_y]
+	mov [ballY], dx
+
+	mov al, white
+	call print_ball
 	ret
 
 print_board:
@@ -439,6 +484,53 @@ print_ball:
 	call draw_rectangle
 	ret
 
+clean_screen:
+	mov al, black
+	mov word [objectX], 0
+	mov word [objectY], 0
+	mov word [objectWidth], maxWidth
+	mov word [objectHeight], maxHeight
+	call draw_rectangle
+	ret
+
+restart_game:
+	call clean_screen
+	;; TODO: show player points
+	;; TODO: in 10 points the game is over and the messages won and lose appears
+	mov word [ballX], 150
+	mov word [ballY], 94
+	mov word [barY1], 50
+	mov word [barY2], 50
+	call print_board
+	ret
+
+print_points:
+	;; set cursor position at center
+	mov ah, 2
+	mov bh, 0
+	mov dh, 0
+	mov dl, 17
+	int 10h
+
+	;; Print the text
+	mov bh, 0
+	mov bl, white
+	mov al, [points_p1]
+	add al, '0'
+	call print_char
+
+	mov al, ' '
+	call print_char
+	mov al, '-'
+	call print_char
+	mov al, ' '
+	call print_char
+
+	mov al, [points_p2]
+	add al, '0'
+	call print_char
+	ret
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Global Variables        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -462,6 +554,9 @@ timer: dw 0
 
 flag_ball_x: dw -5
 flag_ball_y: dw 1
+
+points_p1: dw 0
+points_p2: dw 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
