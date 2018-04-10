@@ -127,24 +127,53 @@ game_loop:
 	time_out:
 		call update_ball
 
-	compare_x:
-		mov dx, [barX1]
-		add dx, [barWidth]
-		cmp [ballX], dx
-		jle compare_y1
+	;;
+	compare_x_with_bar1:
+	 	mov dx, [barX1]
+	 	add dx, [barWidth]
+	 	cmp [ballX], dx
+	 	jle compare_y1_with_bar1
+		jg compare_x_with_bar2
 
-	compare_y1:
+	compare_y1_with_bar1:
 		mov dx, [barY1]
-		cmp [ballY], dx
-		jge compare_y2
+	 	cmp [ballY], dx
+	 	jge compare_y2_with_bar1
+		jl compare_x_with_bar2
 
-	compare_y2:
-		mov dx, [barY1]
-		cmp [ballY], dx
-		jle update_flag
+	compare_y2_with_bar1:
+	 	mov dx, [barY1]
+		add dx, [barHeight]
+	 	cmp [ballY], dx
+	 	jle update_flag_x_for_right
+		jg compare_x_with_bar2
 
-	update_flag:
-		mov word [flag_ball_x], 5
+	update_flag_x_for_right:
+	 	mov word [flag_ball_x], 5
+
+	;;
+	compare_x_with_bar2:
+	 	mov dx, [barX2]
+		sub dx, [barWidth]
+	 	cmp [ballX], dx
+	 	jge compare_y1_with_bar2
+		jl processchar
+
+	compare_y1_with_bar2:
+		mov dx, [barY2]
+	 	cmp [ballY], dx
+	 	jge compare_y2_with_bar2
+		jl processchar
+
+	compare_y2_with_bar2:
+	 	mov dx, [barY2]
+		add dx, [barHeight]
+	 	cmp [ballY], dx
+	 	jle update_flag_x_for_left
+		jg processchar
+
+	update_flag_x_for_left:
+	 	mov word [flag_ball_x], -5
 
 	processchar:
 		cmp al, 's'
@@ -400,7 +429,7 @@ ballSize: dw 10
 timer: dw 0
 
 flag_ball_x: dw -5
-flag_ball_y: dw -5
+flag_ball_y: dw 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Boot Signature          ;;
