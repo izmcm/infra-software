@@ -148,8 +148,31 @@ game_loop:
 	mov dx, word [timer]
 	inc dx
 	mov word [timer], dx
-	cmp word [timer], 20
-	je time_out
+
+	mov dx, word [count_for_ball_delay]
+	inc dx
+	mov word [count_for_ball_delay], dx
+	cmp word [count_for_ball_delay], 300
+	je dec_max_timer
+	jmp end_dec_max_timer
+
+	;; decreases delay to update ball
+	dec_max_timer:
+		mov word [count_for_ball_delay], 0
+		cmp word [max_timer], 5
+		jg dec_here
+		jmp end_dec_here
+
+		dec_here:
+			mov dx, word [max_timer]
+			dec dx
+			mov word [max_timer], dx
+		end_dec_here:
+	end_dec_max_timer:
+
+	mov dx, word [max_timer]
+	cmp word [timer], dx
+	jge time_out
 
 	jmp game_loop
 
@@ -526,6 +549,8 @@ restart_game:
 	mov word [ballY], 94
 	mov word [barY1], 50
 	mov word [barY2], 50
+	mov word [max_timer], 30
+	mov word [count_for_ball_delay], 0
 	call print_board
 	ret
 
@@ -611,6 +636,8 @@ ballY: dw 94
 ballSize: dw 10
 
 timer: dw 0
+count_for_ball_delay: dw 0
+max_timer: dw 25
 
 flag_ball_x: dw -5
 flag_ball_y: dw 1
