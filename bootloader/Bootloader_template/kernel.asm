@@ -101,6 +101,11 @@ start:
 
 	mov [barY1], word 50
 	mov [barY2], word 50
+
+	call menu
+	call read_char
+	call restart_game
+
 	jmp game_loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -581,6 +586,28 @@ print_points:
 	call print_char
 	ret
 
+menu:
+	call clean_screen
+	mov bh, 0
+	mov dh, 0
+	mov dl, 0
+	int 10h
+
+	mov bh, 0
+	mov bl, white
+
+	mov si, position_correct
+	call print_data_seg
+
+	mov si, name_message
+	call print_data_seg
+
+	mov si, position_correct
+	call print_data_seg
+
+	mov si, play_message
+	call print_data_seg
+	ret
 
 p1_did_won:
 	call clean_screen
@@ -637,13 +664,16 @@ ballSize: dw 10
 
 timer: dw 0
 count_for_ball_delay: dw 0
-max_timer: dw 25
+max_timer: dw 20
 
 flag_ball_x: dw -5
 flag_ball_y: dw 1
 
 points_p1: dw 0
 points_p2: dw 0
+
+name_message: db '    PongOS', 0
+play_message: db '- press start -', 0
 
 position_correct: db endl, endl, endl, endl, endl, endl, carriage_return, '             ', 0
 won1_message: db 'Player 1 WON :)', 0
